@@ -463,10 +463,10 @@
             cursor: pointer;
         }
         
-        /* Responsive design for smaller screens */
+        /* Mobile-first responsive design */
         @media (max-width: 1200px) {
             .main-content {
-                grid-template-columns: 300px 1fr;
+                grid-template-columns: 320px 1fr;
             }
             
             .controls {
@@ -475,27 +475,205 @@
         }
         
         @media (max-width: 968px) {
-            .main-content {
-                grid-template-columns: 1fr;
-                grid-template-rows: auto auto;
-                gap: 15px;
+            body {
+                padding: 10px;
             }
             
-            .controls {
-                grid-column: 1;
-                grid-row: 1;
-                max-height: 400px;
-                order: 2;
+            .container {
+                border-radius: 12px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .main-content {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto 1fr;
+                gap: 15px;
+                padding: 15px;
             }
             
             .canvas-area {
                 grid-column: 1;
-                grid-row: 2;
+                grid-row: 1;
                 order: 1;
+                padding: 15px;
+                margin-bottom: 10px;
+            }
+            
+            .controls {
+                grid-column: 1;
+                grid-row: 2;
+                order: 2;
+                max-height: 60vh;
+                padding: 15px;
             }
             
             .canvas-container {
-                max-height: 70vh;
+                max-height: 50vh;
+                margin-bottom: 15px;
+            }
+            
+            .current-slide-display {
+                margin-bottom: 10px;
+                padding: 10px;
+            }
+            
+            .current-slide-display h3 {
+                font-size: 18px;
+                margin-bottom: 10px;
+            }
+            
+            .slide-nav {
+                margin-top: 10px;
+            }
+            
+            .nav-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 18px;
+            }
+            
+            .button-group {
+                margin-top: 10px;
+                gap: 8px;
+            }
+            
+            .btn {
+                padding: 12px 16px;
+                font-size: 14px;
+                border-radius: 8px;
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .control-section {
+                margin-bottom: 15px;
+                padding: 12px;
+            }
+            
+            .section-title {
+                font-size: 0.95rem;
+                margin-bottom: 10px;
+            }
+            
+            .control-group {
+                margin-bottom: 12px;
+            }
+            
+            .control-group label {
+                font-size: 14px;
+                margin-bottom: 8px;
+            }
+            
+            .control-group input, 
+            .control-group select, 
+            .control-group textarea {
+                padding: 12px;
+                font-size: 16px;
+                border-radius: 8px;
+                min-height: 44px;
+            }
+            
+            .slide-editor {
+                max-height: 200px;
+            }
+            
+            .slide-content-input {
+                min-height: 80px;
+                font-size: 14px;
+                padding: 10px;
+            }
+            
+            .text-formatting-tools {
+                margin-bottom: 10px;
+                gap: 6px;
+            }
+            
+            .format-btn {
+                padding: 8px 10px;
+                font-size: 12px;
+                min-height: 36px;
+                border-radius: 6px;
+            }
+            
+            .aspect-ratio-group {
+                gap: 8px;
+            }
+            
+            .ratio-btn {
+                padding: 12px 8px;
+                font-size: 13px;
+                min-height: 50px;
+            }
+            
+            .preset-positions {
+                gap: 6px;
+            }
+            
+            .preset-btn {
+                padding: 10px 6px;
+                font-size: 12px;
+                min-height: 40px;
+            }
+            
+            .range-group {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .color-picker-group {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            
+            .color-picker-group input[type="color"] {
+                width: 60px;
+                height: 44px;
+            }
+            
+            .color-picker-group input[type="text"] {
+                flex: 1;
+                min-width: 100px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .header p {
+                font-size: 0.95rem;
+            }
+            
+            .canvas-container {
+                max-height: 45vh;
+            }
+            
+            .controls {
+                max-height: 55vh;
+            }
+            
+            .button-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .btn {
+                width: 100%;
+                margin-bottom: 8px;
+            }
+            
+            .slide-nav {
+                gap: 15px;
             }
         }
     </style>
@@ -1308,14 +1486,69 @@
             }
         }
         
-        // Download functions
+        // Enhanced download functions with mobile support
         function downloadCurrentSlide() {
-            const link = document.createElement('a');
-            const slideName = `slide-${currentSlideIndex + 1}`;
-            
-            link.download = `${slideName}.png`;
-            link.href = canvas.toDataURL();
-            link.click();
+            try {
+                const link = document.createElement('a');
+                const slideName = `slide-${currentSlideIndex + 1}`;
+                
+                // Convert canvas to blob for better mobile support
+                canvas.toBlob(function(blob) {
+                    if (blob) {
+                        const url = URL.createObjectURL(blob);
+                        link.href = url;
+                        link.download = `${slideName}.png`;
+                        
+                        // Better mobile download support
+                        if (navigator.userAgent.match(/iPhone|iPad|iPod|Android/i)) {
+                            // For mobile devices, open in new tab if direct download fails
+                            const newWindow = window.open();
+                            newWindow.document.write(`
+                                <html>
+                                    <head><title>Download Slide</title></head>
+                                    <body style="margin:0; text-align:center; background:#f0f0f0; padding:20px;">
+                                        <h2>Your slide is ready!</h2>
+                                        <p>Long press the image below and select "Save Image" or "Download"</p>
+                                        <img src="${canvas.toDataURL()}" style="max-width:100%; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.3);" alt="Carousel Slide">
+                                        <br><br>
+                                        <a href="${canvas.toDataURL()}" download="${slideName}.png" style="background:#667eea; color:white; padding:12px 24px; text-decoration:none; border-radius:6px; display:inline-block; margin:10px;">
+                                            📱 Try Direct Download
+                                        </a>
+                                    </body>
+                                </html>
+                            `);
+                        } else {
+                            // Desktop download
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                        }
+                        
+                        // Clean up
+                        setTimeout(() => URL.revokeObjectURL(url), 1000);
+                    } else {
+                        // Fallback to data URL method
+                        link.href = canvas.toDataURL();
+                        link.download = `${slideName}.png`;
+                        link.click();
+                    }
+                }, 'image/png', 0.95);
+                
+            } catch (error) {
+                console.error('Download error:', error);
+                // Final fallback - open image in new tab
+                const newWindow = window.open();
+                newWindow.document.write(`
+                    <html>
+                        <head><title>Download Slide ${currentSlideIndex + 1}</title></head>
+                        <body style="margin:0; text-align:center; background:#f0f0f0; padding:20px;">
+                            <h2>Your slide is ready!</h2>
+                            <p>Right-click (or long press on mobile) and select "Save Image As..."</p>
+                            <img src="${canvas.toDataURL()}" style="max-width:100%; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.3);" alt="Carousel Slide">
+                        </body>
+                    </html>
+                `);
+            }
         }
         
         async function downloadAllSlides() {
@@ -1339,12 +1572,13 @@
                     // Redraw canvas with current slide
                     drawCanvas();
                     
-                    // Convert to blob
-                    const dataURL = canvas.toDataURL('image/png');
-                    const base64Data = dataURL.replace(/^data:image\/png;base64,/, '');
+                    // Convert to blob with better quality
+                    const blob = await new Promise(resolve => {
+                        canvas.toBlob(resolve, 'image/png', 0.95);
+                    });
                     
                     // Add to zip
-                    zip.file(`slide-${i + 1}.png`, base64Data, { base64: true });
+                    zip.file(`slide-${i + 1}.png`, blob);
                     
                     // Update progress
                     downloadBtn.textContent = `⏳ Processing ${i + 1}/${slides.length}...`;
@@ -1352,16 +1586,44 @@
                 
                 // Generate zip file
                 downloadBtn.textContent = '⏳ Generating ZIP...';
-                const content = await zip.generateAsync({ type: 'blob' });
+                const content = await zip.generateAsync({ 
+                    type: 'blob',
+                    compression: 'DEFLATE',
+                    compressionOptions: { level: 6 }
+                });
                 
-                // Download zip
+                // Download zip with mobile support
                 const link = document.createElement('a');
-                link.href = URL.createObjectURL(content);
+                const url = URL.createObjectURL(content);
+                link.href = url;
                 link.download = 'carousel-slides.zip';
-                link.click();
+                
+                if (navigator.userAgent.match(/iPhone|iPad|iPod|Android/i)) {
+                    // Mobile fallback - show instructions
+                    const newWindow = window.open();
+                    newWindow.document.write(`
+                        <html>
+                            <head><title>Download All Slides</title></head>
+                            <body style="margin:0; text-align:center; background:#f0f0f0; padding:20px; font-family:Arial,sans-serif;">
+                                <h2>🎉 Your ${slides.length} slides are ready!</h2>
+                                <p>Click the button below to download all slides as a ZIP file:</p>
+                                <a href="${url}" download="carousel-slides.zip" style="background:#28a745; color:white; padding:15px 30px; text-decoration:none; border-radius:8px; display:inline-block; margin:20px; font-size:16px;">
+                                    📦 Download ZIP (${Math.round(content.size / 1024)}KB)
+                                </a>
+                                <br><br>
+                                <small style="color:#666;">If download doesn't start automatically, try the link above.</small>
+                            </body>
+                        </html>
+                    `);
+                } else {
+                    // Desktop download
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
                 
                 // Clean up
-                URL.revokeObjectURL(link.href);
+                setTimeout(() => URL.revokeObjectURL(url), 5000);
                 
                 // Reset to original slide
                 currentSlideIndex = originalSlideIndex;
@@ -1371,7 +1633,7 @@
                 
             } catch (error) {
                 console.error('Error creating ZIP:', error);
-                alert('Error creating ZIP file. Please try again.');
+                alert('Error creating ZIP file. Please try downloading slides individually.');
             } finally {
                 // Restore button
                 downloadBtn.textContent = originalText;
